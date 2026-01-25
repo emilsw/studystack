@@ -34,9 +34,25 @@
             overflow-x: hidden;
         }
 
+        /* Matrix Rain Canvas */
+        #matrix-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            opacity: 0.4;
+        }
+
+        /* Content wrapper */
+        .content-wrapper {
+            position: relative;
+            z-index: 1;
+        }
+
         /* Scanline effect overlay */
-        body::before {
-            content: '';
+        .scanlines {
             position: fixed;
             top: 0;
             left: 0;
@@ -172,6 +188,7 @@
             bottom: 0;
             left: 0;
             right: 0;
+            background: var(--bg-primary);
         }
 
         .footer-content {
@@ -197,45 +214,128 @@
     </style>
 </head>
 <body>
-    <!-- Header -->
-    <header>
-        <div class="container">
-            <div class="header-content">
-                <a href="#" class="logo">StudyStack</a>
-            </div>
-        </div>
-    </header>
+    <!-- Matrix Rain Background -->
+    <canvas id="matrix-bg"></canvas>
+    
+    <!-- Scanlines overlay -->
+    <div class="scanlines"></div>
 
-    <main>
-        <!-- Hero Section -->
-        <section class="hero">
+    <!-- Content -->
+    <div class="content-wrapper">
+        <!-- Header -->
+        <header>
             <div class="container">
-                <h1 class="hero-title">
-                    One story.
-                    <span class="hero-title-line2">Maximum juice.</span>
-                </h1>
-                
-                <p class="hero-subtitle">
-                    We specialize in turning one customer success story into a full campaign of content, purpose-built for your strategic sales and marketing activities.
-                </p>
-                
-                <a href="#contact" class="cta-link">Need a Case Study?</a>
-
-                <p class="trusted">
-                    Trusted by <a href="#">Lokalise</a>, <a href="#">AppSumo</a>, <a href="#">GetLeado</a>, <a href="#">Foundr</a>, <a href="#">Indie Hackers</a>, <a href="#">Adyntel</a> and more
-                </p>
+                <div class="header-content">
+                    <a href="#" class="logo">StudyStack</a>
+                </div>
             </div>
-        </section>
-    </main>
+        </header>
 
-    <!-- Footer -->
-    <footer>
-        <div class="container">
-            <div class="footer-content">
-                <span>© 2026 StudyStack</span>
-                <span>All rights reserved.</span>
+        <main>
+            <!-- Hero Section -->
+            <section class="hero">
+                <div class="container">
+                    <h1 class="hero-title">
+                        One story.
+                        <span class="hero-title-line2">Maximum juice.</span>
+                    </h1>
+                    
+                    <p class="hero-subtitle">
+                        We specialize in turning one customer success story into a full campaign of content, purpose-built for your strategic sales and marketing activities.
+                    </p>
+                    
+                    <a href="#contact" class="cta-link">Need a Case Study?</a>
+
+                    <p class="trusted">
+                        Trusted by <a href="#">Lokalise</a>, <a href="#">AppSumo</a>, <a href="#">GetLeado</a>, <a href="#">Foundr</a>, <a href="#">Indie Hackers</a>, <a href="#">Adyntel</a> and more
+                    </p>
+                </div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer>
+            <div class="container">
+                <div class="footer-content">
+                    <span>© 2026 StudyStack</span>
+                    <span>All rights reserved.</span>
+                </div>
             </div>
-        </div>
-    </footer>
+        </footer>
+    </div>
+
+    <!-- Matrix Rain Script -->
+    <script>
+        const canvas = document.getElementById('matrix-bg');
+        const ctx = canvas.getContext('2d');
+
+        // Set canvas size
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+
+        // Characters (binary)
+        const chars = '01';
+        
+        // Font size and columns
+        const fontSize = 14;
+        let columns = Math.floor(canvas.width / fontSize);
+        
+        // Array to track y position of each column
+        let drops = [];
+        for (let i = 0; i < columns; i++) {
+            drops[i] = Math.random() * -100;
+        }
+
+        // Draw function
+        function draw() {
+            // Semi-transparent black to create fade effect
+            ctx.fillStyle = 'rgba(13, 2, 8, 0.05)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Green text
+            ctx.fillStyle = '#00FF41';
+            ctx.font = fontSize + 'px JetBrains Mono, monospace';
+
+            // Draw characters
+            for (let i = 0; i < drops.length; i++) {
+                // Random character
+                const char = chars[Math.floor(Math.random() * chars.length)];
+                
+                // Draw character
+                const x = i * fontSize;
+                const y = drops[i] * fontSize;
+                
+                // Varying opacity for depth effect
+                const opacity = Math.random() * 0.5 + 0.1;
+                ctx.fillStyle = `rgba(0, 255, 65, ${opacity})`;
+                ctx.fillText(char, x, y);
+
+                // Reset drop to top randomly after it passes the screen
+                if (y > canvas.height && Math.random() > 0.975) {
+                    drops[i] = 0;
+                }
+
+                // Move drop down
+                drops[i]++;
+            }
+        }
+
+        // Handle resize
+        window.addEventListener('resize', () => {
+            resizeCanvas();
+            columns = Math.floor(canvas.width / fontSize);
+            drops = [];
+            for (let i = 0; i < columns; i++) {
+                drops[i] = Math.random() * -100;
+            }
+        });
+
+        // Animation loop
+        setInterval(draw, 50);
+    </script>
 </body>
 </html>
